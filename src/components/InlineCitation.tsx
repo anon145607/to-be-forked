@@ -30,7 +30,7 @@ export function InlineCitation({ text }: InlineCitationProps) {
           >
             <span className="my-2 flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm italic text-foreground/80">
               <Quote className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/60" />
-              <span className="flex-1">{text}</span>
+              <span className="flex-1 whitespace-pre-wrap">{text}</span>
               <button
                 onClick={() => setOpen(false)}
                 className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground transition-colors"
