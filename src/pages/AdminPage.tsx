@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Pencil, Trash2, Plus, LogIn, LogOut } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { RichTextEditor } from '@/components/RichTextEditor';
 
 const FORMAT_LABELS: Record<PostFormat, string> = {
   full: 'Full Post',
@@ -15,6 +16,14 @@ const FORMAT_LABELS: Record<PostFormat, string> = {
   paragraph: 'Single Paragraph',
   pareto: 'Pareto Principle (80/20)',
   bullets: 'Key Bullet Points',
+};
+
+const FORMAT_HEIGHTS: Record<PostFormat, string> = {
+  full: '400px',
+  summary: '150px',
+  paragraph: '120px',
+  pareto: '200px',
+  bullets: '200px',
 };
 
 const emptyFormats = (): Record<PostFormat, string> => ({
@@ -141,12 +150,12 @@ export default function AdminPage() {
             </div>
             {(Object.keys(FORMAT_LABELS) as PostFormat[]).map(key => (
               <div key={key}>
-                <Label>{FORMAT_LABELS[key]}</Label>
-                <Textarea
-                  value={formats[key]}
-                  onChange={e => setFormats(prev => ({ ...prev, [key]: e.target.value }))}
+                <Label className="mb-2 block">{FORMAT_LABELS[key]}</Label>
+                <RichTextEditor
+                  content={formats[key]}
+                  onChange={(html) => setFormats(prev => ({ ...prev, [key]: html }))}
                   placeholder={`Content for "${FORMAT_LABELS[key]}" format`}
-                  rows={key === 'full' ? 10 : 4}
+                  minHeight={FORMAT_HEIGHTS[key]}
                 />
               </div>
             ))}

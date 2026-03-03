@@ -1,45 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
 import { useBlog, PostFormat } from '@/contexts/BlogContext';
-import { useState, ReactNode } from 'react';
+import { useState } from 'react';
 import { FormatSwitcher } from '@/components/FormatSwitcher';
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { InlineCitation } from '@/components/InlineCitation';
-
-const CITATION_LINE_BREAK_TOKEN = '__CITATION_NL__';
-
-/** Parse c("...") tokens within a string into text + InlineCitation nodes */
-function parseCitations(text: string): ReactNode[] {
-  const regex = /c\("([\s\S]*?)"\)/g;
-  const parts: ReactNode[] = [];
-  let last = 0;
-  let match: RegExpExecArray | null;
-  let key = 0;
-
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > last) parts.push(text.slice(last, match.index));
-    parts.push(
-      <InlineCitation
-        key={key++}
-        text={match[1].split(CITATION_LINE_BREAK_TOKEN).join('\n')}
-      />
-    );
-    last = regex.lastIndex;
-  }
-
-  if (last < text.length) parts.push(text.slice(last));
-  return parts;
-}
-
-/** Keep multiline citations intact while rendering the post line-by-line */
-function protectCitationLineBreaks(text: string): string {
-  return text.replace(/c\("([\s\S]*?)"\)/g, (_match, citation: string) => {
-    const safeCitation = citation.replace(/\n/g, CITATION_LINE_BREAK_TOKEN);
-    return `c("${safeCitation}")`;
-  });
-}
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
@@ -60,7 +26,6 @@ export default function PostPage() {
   }
 
   const content = post.formats[format] || '';
-  const normalizedContent = protectCitationLineBreaks(content);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -99,20 +64,9 @@ export default function PostPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
-              className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-mono prose-headings:tracking-tight prose-p:text-foreground/85 prose-li:text-foreground/85 prose-strong:text-foreground"
-            >
-              {normalizedContent.split('\n').map((line, i) => {
-                if (line.startsWith('## ')) return <h2 key={i} className="mt-8 mb-3 text-xl font-semibold">{parseCitations(line.replace('## ', ''))}</h2>;
-                if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="font-semibold text-foreground">{parseCitations(line.replace(/\*\*/g, ''))}</p>;
-                if (line.startsWith('- **')) {
-                  const parts = line.replace('- **', '').split('**');
-                  return <div key={i} className="flex gap-2 py-1"><span className="text-primary">•</span><p><strong>{parts[0]}</strong>{parseCitations(parts[1] || '')}</p></div>;
-                }
-                if (line.startsWith('- ')) return <div key={i} className="flex gap-2 py-1"><span className="text-primary">•</span><p>{parseCitations(line.replace('- ', ''))}</p></div>;
-                if (line.trim() === '') return <div key={i} className="h-3" />;
-                return <p key={i} className="leading-relaxed">{parseCitations(line)}</p>;
-              })}
-            </motion.div>
+              className="blog-content prose prose-sm max-w-none dark:prose-invert prose-headings:font-mono prose-headings:tracking-tight prose-p:text-foreground/85 prose-li:text-foreground/85 prose-strong:text-foreground"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
           </AnimatePresence>
         </article>
       </div>
