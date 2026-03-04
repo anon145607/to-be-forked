@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils';
-import { FileText, AlignLeft, Type, PieChart, List } from 'lucide-react';
-import { PostFormat } from '@/contexts/BlogContext';
+import { FileText, AlignLeft, Type, PieChart, List, BookOpen } from 'lucide-react';
+import { PostFormat, CustomFormat } from '@/contexts/BlogContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const formats: { key: PostFormat; label: string; icon: React.ElementType }[] = [
+const defaultFormats: { key: PostFormat; label: string; icon: React.ElementType }[] = [
   { key: 'full', label: 'Full Post', icon: FileText },
   { key: 'summary', label: '3-Sentence Summary', icon: AlignLeft },
   { key: 'paragraph', label: 'Single Paragraph', icon: Type },
@@ -12,17 +12,23 @@ const formats: { key: PostFormat; label: string; icon: React.ElementType }[] = [
 ];
 
 interface Props {
-  active: PostFormat;
-  onChange: (f: PostFormat) => void;
+  active: string;
+  onChange: (f: string) => void;
+  customFormats?: CustomFormat[];
 }
 
-export function FormatSwitcher({ active, onChange }: Props) {
+export function FormatSwitcher({ active, onChange, customFormats = [] }: Props) {
   const isMobile = useIsMobile();
+
+  const allFormats = [
+    ...defaultFormats,
+    ...customFormats.map(cf => ({ key: cf.key, label: cf.label, icon: BookOpen })),
+  ];
 
   if (isMobile) {
     return (
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
-        {formats.map(f => (
+        {allFormats.map(f => (
           <button
             key={f.key}
             onClick={() => onChange(f.key)}
@@ -46,7 +52,7 @@ export function FormatSwitcher({ active, onChange }: Props) {
       <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-muted-foreground">
         Reading Format
       </p>
-      {formats.map(f => (
+      {allFormats.map(f => (
         <button
           key={f.key}
           onClick={() => onChange(f.key)}

@@ -16,7 +16,7 @@ const Index = () => {
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
           Clear, concise breakdowns of Microsoft licensing — from M365 plans to Azure cost optimization. 
-          Every post comes in 5 reading formats so you get exactly what you need.
+          Every post comes in multiple reading formats so you get exactly what you need.
         </p>
       </div>
 
@@ -40,13 +40,25 @@ const Index = () => {
                   <CardTitle className="mt-1 text-xl font-semibold tracking-tight group-hover:text-primary transition-colors">
                     {post.title}
                   </CardTitle>
+                  {post.tags?.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {post.tags.map(tag => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-sm leading-relaxed">
                     {post.excerpt}
                   </CardDescription>
                   <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Read in 5 formats <ArrowRight className="h-3 w-3" />
+                    Read in {5 + (post.customFormats?.length || 0)} formats <ArrowRight className="h-3 w-3" />
                   </span>
                 </CardContent>
               </Card>
