@@ -8,11 +8,23 @@ import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+function convertLegacyCitations(html: string): string {
+  // Convert c("...") syntax (including multiline) to <citation> tags
+  return html.replace(/c\(&quot;([\s\S]*?)&quot;\)/g, (_match, text: string) => {
+    return `<citation data-text="${encodeURIComponent(text)}">📎</citation>`;
+  }).replace(/c\("([\s\S]*?)"\)/g, (_match, text: string) => {
+    return `<citation data-text="${encodeURIComponent(text)}">📎</citation>`;
+  });
+}
+
 function renderContentWithCitations(html: string) {
+  // First convert any legacy c("...") syntax to <citation> tags
+  const normalizedHtml = convertLegacyCitations(html);
+
   // Split HTML on <citation> elements
-  const parts = html.split(/(<citation[^>]*>.*?<\/citation>)/gi);
+  const parts = normalizedHtml.split(/(<citation[^>]*>.*?<\/citation>)/gi);
   if (parts.length === 1) {
-    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+    return <div dangerouslySetInnerHTML={{ __html: normalizedHtml }} />;
   }
   return (
     <>
